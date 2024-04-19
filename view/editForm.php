@@ -174,7 +174,6 @@ let GestCookie = {
         $.ajax({
           url: "https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Brand/edit/e8f1997c763",
           method: "PUT",
-          contentType: "application/json",
           data: JSON.stringify({
             brand_id: brandId,
             brand_name: brandName,
