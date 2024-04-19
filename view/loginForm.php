@@ -110,22 +110,21 @@
                     </div>
                   </form>
                     <script type="text/javascript">
-
+                      /**
+                       * Validates login credentials and sets cookies for employee data upon successful login.
+                       */
                       function loginValidate() {
-                        // Récupération des valeurs des champs email et mot de passe
+                        // Retrieving values of email and password fields
                         var email = $("#formEmail").val();
                         var password = $("#formPassword").val();
 
-                        // Construction de l'objet de données à envoyer
+                        // Constructing data object to send
                         var requestData = {
-                            //action: "getLoginEmployee",
                             email: email,
                             password: password,
-                            //auth_key: "e8f1997c763"
-                            //ancienne rewrite rule : RewriteRule ^bikestores/(Login)/edit/([a-f0-9]+)/?$ bikestores.php?action=change$1&auth_key=$2 [L,QSA]
                         };
 
-                        // Requête AJAX POST vers l'API
+                        // AJAX POST request to the API for login validation
                         $.ajax({
                             type: "POST",
                             url: "https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Login/e8f1997c763",
@@ -142,6 +141,7 @@
                                     var encodedEmployeeRole = btoa(employeeRole);
                                     var encodedEmployeeStore = btoa(employeeStore);
 
+                                    // Setting cookies for employee data
                                     document.cookie = "employeeId=" + encodedEmployeeId + "; path=/";
                                     document.cookie = "employeeRole=" + encodedEmployeeRole + "; path=/";
                                     document.cookie = "employeeStore=" + encodedEmployeeStore + "; path=/";

@@ -17,141 +17,175 @@
     </style>
     <!--couleur naver dashboard-->
     <script type="text/javascript">
-		$(document).ready(function(){
-      $('#yearFilter').val('');
-      $('#minPriceFilter').val('');
-      $('#maxPriceFilter').val('');
-            $.ajax({
-                url: 'https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Products',
-                type: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                    var table = $('#productList');
-                    var brandFilter = $('#brandFilter');
-                    var categoryFilter = $('#categoryFilter');
-                    var allBrands = {};
-                    var allCategories = {};
-                    $.each(data, function(index) {
-                        //display all products
-                        table.append('<tr><td>'+data[index].id+'</td><td>'+data[index].name+'</td><td>'+data[index].brand
-                        +'</td><td>'+data[index].category+'</td><td>'+data[index].model_year+'</td><td>'+data[index].list_price+'</td></tr>');
+		  /**
+       * Function that initializes the page by populating the product list, brand filter, and category filter via AJAX.
+       * @function
+       */
+      $(document).ready(function(){
+        // Reset filter values
+        $('#yearFilter').val('');
+        $('#minPriceFilter').val('');
+        $('#maxPriceFilter').val('');
 
-                        //display all brands in filter
-                        if (!allBrands[data[index].brand]) {
-                          allBrands[data[index].brand] = true;                          
-                          brandFilter.append('<option value="' + data[index].brand + '">' + data[index].brand + '</option>')
-                        }
+        // Fetch product data via AJAX
+        $.ajax({
+          url: 'https://dev-brennet222.users.info.unicaen.fr/bikestores/api/Products',
+          type: 'GET',
+          dataType: 'json',
+          /**
+           * Success callback function for AJAX request.
+           * Populates product list, brand filter, and category filter.
+           * @param {Object[]} data - Array of product objects
+           */
+          success: function(data) {
+            var table = $('#productList');
+            var brandFilter = $('#brandFilter');
+            var categoryFilter = $('#categoryFilter');
+            var allBrands = {};
+            var allCategories = {};
 
-                        //display all brands in filter
-                        if (!allCategories[data[index].category]) {
-                          allCategories[data[index].category] = true;                          
-                          categoryFilter.append('<option value="' + data[index].category + '">' + data[index].category + '</option>')
-                        }
-                    });
-                },
-                error: function(error) {
-                    console.error('Error during the recuperation of all products : ', error);
-                }
-			})
-	  });
+            $.each(data, function(index) {
+              // Display product information in table rows
+              table.append('<tr><td>'+data[index].id+'</td><td>'+data[index].name+'</td><td>'+data[index].brand
+                +'</td><td>'+data[index].category+'</td><td>'+data[index].model_year+'</td><td>'+data[index].list_price+'</td></tr>');
 
-    //generate map start
-    $(document).ready(function(){
-      var ip;
-      var addresses = [];
+              // Populate brand filter
+              if (!allBrands[data[index].brand]) {
+                allBrands[data[index].brand] = true;                          
+                brandFilter.append('<option value="' + data[index].brand + '">' + data[index].brand + '</option>')
+              }
 
-      function getClientIp() {
-        $.getJSON("https://api.bigdatacloud.net/data/client-ip",{},function (data) {
-          ip = data.ipString;
-          getClientLocation(ip);
+              // Populate category filter
+              if (!allCategories[data[index].category]) {
+                allCategories[data[index].category] = true;                          
+                categoryFilter.append('<option value="' + data[index].category + '">' + data[index].category + '</option>')
+              }
+            });
+          },
+          /**
+           * Error callback function for AJAX request.
+           * Logs the error to the console.
+           * @param {Object} error - Error object
+           */
+          error: function(error) {
+            console.error('Error during the retrieval of all products:', error);
+          }
         })
-      }
-      
-      function getClientLocation(ip) {
-        $.getJSON("https://api.apibundle.io/ip-lookup?apikey=aee4a30e51774edba7e5a11a863f0fb5&ip="+ip,{},function (data) {
-          var storeAd = {
-            name: "Your location",
-            coords: [parseFloat(data.latitude), parseFloat(data.longitude)]
-          };
-          addresses.push(storeAd);
-          getStoresLocations();
-        })  
-      }   
+      });
 
-      function getStoresLocations() {
-        $.getJSON("https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Addresses", {}, function(data) {
-          var requests = [];
-          $.each(data, function(index) {
-            var request = $.getJSON("https://geocode.xyz/" + data[index].addresse + "?json=1&auth=215880901580060813457x762")
-              .then(function(data) {
-                var storeAd = {
-                  name: "Store of " + data.standard.city,
-                  coords: [parseFloat(data.latt), parseFloat(data.longt)]
-                };
-                addresses.push(storeAd);
-              })
-            requests.push(request);
-          });
-          $.when.apply($, requests).then(function() {
-            displayMap();
-          });
-        })
-      }
+      /**
+       * Function to fetch client IP address and display map with client and store locations.
+       */
+      $(document).ready(function(){
+        var ip;
+        var addresses = [];
+
+        /**
+         * Function to retrieve client IP address.
+         */
+        function getClientIp() {
+          $.getJSON("https://api.bigdatacloud.net/data/client-ip",{},function (data) {
+            ip = data.ipString;
+            getClientLocation(ip);
+          })
+        }
         
-      function displayMap() {
-        var map = L.map('map').setView(addresses[0].coords, 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+        /**
+         * Function to retrieve client location based on IP address.
+         * @param {string} ip - Client IP address
+         */
+        function getClientLocation(ip) {
+          $.getJSON("https://api.apibundle.io/ip-lookup?apikey=aee4a30e51774edba7e5a11a863f0fb5&ip="+ip,{},function (data) {
+            var storeAd = {
+              name: "Your location",
+              coords: [parseFloat(data.latitude), parseFloat(data.longitude)]
+            };
+            addresses.push(storeAd);
+            getStoresLocations();
+          })  
+        }   
 
-        addresses.forEach(function(address) {
-          L.marker(address.coords).addTo(map).bindPopup(address.name);
+        /**
+         * Function to fetch store locations and display map.
+         */
+        function getStoresLocations() {
+          $.getJSON("https://dev-brennet222.users.info.unicaen.fr/bikestores/api/Addresses", {}, function(data) {
+            var requests = [];
+            $.each(data, function(index) {
+              var request = $.getJSON("https://geocode.xyz/" + data[index].addresse + "?json=1&auth=215880901580060813457x762")
+                .then(function(data) {
+                  var storeAd = {
+                    name: "Store of " + data.standard.city,
+                    coords: [parseFloat(data.latt), parseFloat(data.longt)]
+                  };
+                  addresses.push(storeAd);
+                })
+              requests.push(request);
+            });
+            $.when.apply($, requests).then(function() {
+              displayMap();
+            });
+          })
+        }
+          
+        /**
+         * Function to display map with client and store locations.
+         */
+        function displayMap() {
+          var map = L.map('map').setView(addresses[0].coords, 12);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          }).addTo(map);
+
+          addresses.forEach(function(address) {
+            L.marker(address.coords).addTo(map).bindPopup(address.name);
+          });
+        }
+        
+        // Initialize by fetching client IP address
+        getClientIp();
+      });
+
+      /**
+       * Function to filter products based on selected options.
+       */
+      function changeFilter(){
+        var selectedBrand = $('#brandFilter').val();
+        var selectedCategory = $('#categoryFilter').val();
+        var selectedYear = parseInt($('#yearFilter').val());
+        var minPrice = parseFloat($('#minPriceFilter').val());
+        var maxPrice = parseFloat($('#maxPriceFilter').val());
+
+        $('#productList tr').each(function(index, element) {
+          var productId = $(this).find('td:eq(0)').text();
+          var productName = $(this).find('td:eq(1)').text();
+          var productBrand = $(this).find('td:eq(2)').text();
+          var productCategory = $(this).find('td:eq(3)').text();
+          var productYear = parseInt($(this).find('td:eq(4)').text());
+          var productPrice = parseFloat($(this).find('td:eq(5)').text());
+
+          var showProduct = true;
+
+          if (selectedBrand !== "all" && productBrand !== selectedBrand) {
+            showProduct = false;
+          } else if (selectedCategory !== "all" && productCategory !== selectedCategory) {
+            showProduct = false;
+          } else if (!isNaN(selectedYear) && productYear !== selectedYear) {
+            showProduct = false;
+          } else if (!isNaN(minPrice) && productPrice < minPrice) {
+            showProduct = false;
+          } else if (!isNaN(maxPrice) && productPrice > maxPrice) {
+            showProduct = false;
+          } 
+          
+          if (showProduct) {
+            $(this).show();
+          } else {
+            $(this).hide();
+          }
+        
         });
       }
-      
-      getClientIp();
-      
-    });
-    //generate map end
-
-
-    function changeFilter(){
-      var selectedBrand = $('#brandFilter').val();
-      var selectedCategory = $('#categoryFilter').val();
-      var selectedYear = parseInt($('#yearFilter').val());
-      var minPrice = parseFloat($('#minPriceFilter').val());
-      var maxPrice = parseFloat($('#maxPriceFilter').val());
-
-      $('#productList tr').each(function(index, element) {
-        var productId = $(this).find('td:eq(0)').text();
-        var productName = $(this).find('td:eq(1)').text();
-        var productBrand = $(this).find('td:eq(2)').text();
-        var productCategory = $(this).find('td:eq(3)').text();
-        var productYear = parseInt($(this).find('td:eq(4)').text());
-        var productPrice = parseFloat($(this).find('td:eq(5)').text());
-
-        var showProduct = true;
-
-        if (selectedBrand !== "all" && productBrand !== selectedBrand) {
-            showProduct = false;
-        } else if (selectedCategory !== "all" && productCategory !== selectedCategory) {
-            showProduct = false;
-        } else if (!isNaN(selectedYear) && productYear !== selectedYear) {
-            showProduct = false;
-        } else if (!isNaN(minPrice) && productPrice < minPrice) {
-            showProduct = false;
-        } else if (!isNaN(maxPrice) && productPrice > maxPrice) {
-            showProduct = false;
-        } 
-        
-        if (showProduct) {
-            $(this).show();
-        } else {
-            $(this).hide();
-        }
-      
-      });
-    }
 	  </script>
 </head>
 <body>

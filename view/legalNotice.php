@@ -31,67 +31,78 @@
     </style>
     <!--couleur naver dashboard-->
     <script type="text/javascript">
+      /**
+       * Generates a map based on client IP and store locations.
+       */
+      $(document).ready(function(){
+        var ip;
+        var addresses = [];
 
-    //generate map start
-
-    $(document).ready(function(){
-      var ip;
-      var addresses = [];
-
-      function getClientIp() {
-        $.getJSON("https://api.bigdatacloud.net/data/client-ip",{},function (data) {
-          ip = data.ipString;
-          getClientLocation(ip);
-        })
-      }
-      
-      function getClientLocation(ip) {
-        $.getJSON("https://api.apibundle.io/ip-lookup?apikey=aee4a30e51774edba7e5a11a863f0fb5&ip="+ip,{},function (data) {
-          var storeAd = {
-            name: "Your location",
-            coords: [parseFloat(data.latitude), parseFloat(data.longitude)]
-          };
-          addresses.push(storeAd);
-          getStoresLocations();
-        })  
-      }   
-
-      function getStoresLocations() {
-        $.getJSON("https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Addresses", {}, function(data) {
-          var requests = [];
-          $.each(data, function(index) {
-            var request = $.getJSON("https://geocode.xyz/" + data[index].addresse + "?json=1&auth=215880901580060813457x762")
-              .then(function(data) {
-                var storeAd = {
-                  name: "Store of " + data.standard.city,
-                  coords: [parseFloat(data.latt), parseFloat(data.longt)]
-                };
-                addresses.push(storeAd);
-              })
-            requests.push(request);
+        /**
+         * Retrieves the client's IP address.
+         */
+        function getClientIp() {
+          $.getJSON("https://api.bigdatacloud.net/data/client-ip",{},function (data) {
+            ip = data.ipString;
+            getClientLocation(ip);
           });
-          $.when.apply($, requests).then(function() {
-            displayMap();
+        }
+
+        /**
+         * Retrieves the client's location based on IP.
+         * @param {string} ip - The client's IP address.
+         */
+        function getClientLocation(ip) {
+          $.getJSON("https://api.apibundle.io/ip-lookup?apikey=aee4a30e51774edba7e5a11a863f0fb5&ip="+ip,{},function (data) {
+            var storeAd = {
+              name: "Your location",
+              coords: [parseFloat(data.latitude), parseFloat(data.longitude)]
+            };
+            addresses.push(storeAd);
+            getStoresLocations();
+          });  
+        }
+
+        /**
+         * Retrieves locations of stores.
+         */
+        function getStoresLocations() {
+          $.getJSON("https://dev-brennet222.users.info.unicaen.fr/bikestores/api/Addresses", {}, function(data) {
+            var requests = [];
+            $.each(data, function(index) {
+              var request = $.getJSON("https://geocode.xyz/" + data[index].addresse + "?json=1&auth=215880901580060813457x762")
+                .then(function(data) {
+                  var storeAd = {
+                    name: "Store of " + data.standard.addresse,
+                    coords: [parseFloat(data.latt), parseFloat(data.longt)]
+                  };
+                  addresses.push(storeAd);
+                });
+              requests.push(request);
+            });
+            $.when.apply($, requests).then(function() {
+              displayMap();
+            });
           });
-        })
-      }
+        }
+          
+        /**
+         * Displays the map with client location and store locations.
+         */
+        function displayMap() {
+          var map = L.map('map').setView(addresses[0].coords, 12);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          }).addTo(map);
+
+          addresses.forEach(function(address) {
+            L.marker(address.coords).addTo(map).bindPopup(address.name);
+          });
+        }
         
-      function displayMap() {
-        var map = L.map('map').setView(addresses[0].coords, 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        addresses.forEach(function(address) {
-          L.marker(address.coords).addTo(map).bindPopup(address.name);
-        });
-      }
-      
-      getClientIp();
-      
-    });
-    //generate map end
-		
+        getClientIp();
+        
+      });
 	  </script>
 </head>
 <body>

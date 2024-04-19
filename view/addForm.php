@@ -14,7 +14,7 @@
     <!--<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>-->
     <style>
       h2 {
-        margin-top: 50px;
+        margin-top: 100px;
         margin-bottom: 50px;
       }
       form {
@@ -28,43 +28,44 @@
       }
     </style>
     <script type="text/javascript">
-
-    let GestCookie = {
-      hasItem: function(name) {
-        const verif = new RegExp('(?:^|;\\s*)' + name.replace(/[\-\.\+\*]/g, '\\$&') + '\\s*\\=').test(document.cookie);
-        if (verif == true) {
-          return true;
-        } else {
-          return false;
-        }
-      },
-      getItem: function(name) {
-        if (this.hasItem(name)) {
-          const decodedCookie = decodeURIComponent(document.cookie);
-          const cookies = decodedCookie.split(';');
-          for (let cookie of cookies) {
-            cookie = cookie.trim();
-            if (cookie.startsWith(name + '=')) {
-              const cookieValue = cookie.substring(name.length + 1);
-              return atob(cookieValue);
+      /**
+       * Object for managing cookies.
+       * @type {Object}
+       */
+      let GestCookie = {
+        /**
+         * Checks if a cookie with a specified name exists.
+         * @param {string} name - The name of the cookie to check.
+         * @returns {boolean} - True if the cookie exists, otherwise false.
+         */
+        hasItem: function(name) {
+          const verif = new RegExp('(?:^|;\\s*)' + name.replace(/[\-\.\+\*]/g, '\\$&') + '\\s*\\=').test(document.cookie);
+          return verif;
+        },
+        /**
+         * Gets the value of a cookie with a specified name.
+         * @param {string} name - The name of the cookie to retrieve.
+         * @returns {string|boolean} - The value of the cookie if it exists, otherwise false.
+         */
+        getItem: function(name) {
+          if (this.hasItem(name)) {
+            const decodedCookie = decodeURIComponent(document.cookie);
+            const cookies = decodedCookie.split(';');
+            for (let cookie of cookies) {
+              cookie = cookie.trim();
+              if (cookie.startsWith(name + '=')) {
+                const cookieValue = cookie.substring(name.length + 1);
+                return atob(cookieValue);
+              }
             }
           }
-        } else {
           return false;
-        }
-      },
-    }
+        },
+      };
 
-      $( document ).ready(function() {
-        if (GestCookie.hasItem("employeeId")) {
-          storeId = GestCookie.getItem("employeeStore");
-          console.log(storeId);
-        } else {
-          alert("You don't have access to this page.")
-          window.location.href = "index.php?action=products";
-        }
-      });
-
+      /**
+       * Hides sections of the page.
+       */
       function hideSections() {
         document.getElementById("addProductSection").style.display = "none";
         document.getElementById("addBrandSection").style.display = "none";
@@ -73,34 +74,34 @@
         document.getElementById("addStoreSection").style.display = "none";
       }
 
+      /**
+       * Displays data based on the selected option.
+       * @param {Event} event - The event triggering the function.
+       */
       function displayData(event) {
         event.preventDefault();
-
         document.getElementById("selectData").style.display = "none";
         var selectedData=$("#dataType").val();
 
         if (selectedData=="product") {
-          //afficher
           document.getElementById("addProductSection").style.display = "block";
         } else if (selectedData=="brand") {
-          //afficher
           document.getElementById("addBrandSection").style.display = "block";
         } else if (selectedData=="category") {
-          //afficher
           document.getElementById("addCategorySection").style.display = "block";
         } else if (selectedData=="stock") {
-          //afficher
           document.getElementById("addStockSection").style.display = "block";
         } else if (selectedData=="store") {
-          //afficher
           document.getElementById("addStoreSection").style.display = "block";
         }
-
       }
 
-      function addProduct() {
+      /**
+       * Adds a product via AJAX.
+       * @param {Event} event - The event triggering the function.
+       */
+      function addProduct(event) {
         event.preventDefault();
-
         var productName=$("#productName").val();
         var brandId=$("#brandId").val();
         var categoryId=$("#categoryId").val();
@@ -108,7 +109,7 @@
         var listPrice = parseFloat($("#listPrice").val());
 
         $.ajax({
-          url: "https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Product/e8f1997c763",
+          url: "https://dev-brennet222.users.info.unicaen.fr/bikestores/api/Product/e8f1997c763",
           method: "POST",
           data: {
             product_name: productName,
@@ -119,7 +120,7 @@
             auth_key: "e8f1997c763",
           },
           success: function(response) {
-            alert("Request send successfully: "+response);
+            alert("Request sent successfully: "+response);
             window.location.href = "index.php?action=products";
           },
           error: function(xhr, status, error) {
@@ -128,114 +129,126 @@
           }
         });
       }
+      /**
+ * Adds a brand via AJAX.
+ * @param {Event} event - The event triggering the function.
+ */
+function addBrand(event) {
+  event.preventDefault();
+  var brandName=$("#brandName").val();
 
-      function addBrand() {
-        event.preventDefault();
+  $.ajax({
+    url: "https://dev-brennet222.users.info.unicaen.fr/bikestores/api/Brand/e8f1997c763",
+    method: "POST",
+    data: {
+      brand_name: brandName,
+      //auth_key: "e8f1997c763",
+    },
+    success: function(response) {
+      alert("Request sent successfully: "+response);
+      window.location.href = "index.php?action=products";
+    },
+    error: function(xhr, status, error) {
+      alert("Error: "+error);
+      window.location.href = "index.php?action=addForm";
+    }
+  });
+}
 
-        var brandName=$("#brandName").val();
+/**
+ * Adds a category via AJAX.
+ * @param {Event} event - The event triggering the function.
+ */
+function addCategory(event) {
+  event.preventDefault();
+  var categoryName=$("#categoryName").val();
 
-        $.ajax({
-          url: "https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Brand/e8f1997c763",
-          method: "POST",
-          data: {
-            brand_name: brandName,
-            //auth_key: "e8f1997c763",
-          },
-          success: function(response) {
-            alert("Request send successfully: "+response);
-            window.location.href = "index.php?action=products";
-          },
-          error: function(xhr, status, error) {
-            alert("Error: "+error);
-            window.location.href = "index.php?action=addForm";
-          }
-        });
+  $.ajax({
+    url: "https://dev-brennet222.users.info.unicaen.fr/bikestores/api/Category/e8f1997c763",
+    method: "POST",
+    data: {
+      category_name: categoryName,
+      //auth_key: "e8f1997c763",
+    },
+    success: function(response) {
+      alert("Request sent successfully: "+response);
+      window.location.href = "index.php?action=products";
+    },
+    error: function(xhr, status, error) {
+      alert("Error: "+error);
+      window.location.href = "index.php?action=addForm";
+    }
+  });
+}
+
+/**
+ * Adds a store via AJAX.
+ * @param {Event} event - The event triggering the function.
+ */
+function addStore(event) {
+  event.preventDefault();
+  var storeName=$("#storeName").val();
+  var phone=$("#phone").val();
+  var email=$("#email").val();
+  var street=$("#street").val();
+  var city=$("#city").val();
+  var state=$("#state").val();
+  var zipCode=$("#zipCode").val();
+
+  $.ajax({
+    url: "https://dev-brennet222.users.info.unicaen.fr/bikestores/api/Store/e8f1997c763",
+    method: "POST",
+    data: {
+      store_name: storeName,
+      phone: phone,
+      email: email,
+      street: street,
+      city: city,
+      state: state,
+      zip_code: zipCode,
+      //auth_key: "e8f1997c763",
+    },
+    success: function(response) {
+      alert("Request sent successfully: "+response);
+      window.location.href = "index.php?action=products";
+    },
+    error: function(xhr, status, error) {
+      alert("Error: "+error);
+      window.location.href = "index.php?action=addForm";
+    }
+  });
+  }
+
+  /**
+   * Adds stock via AJAX.
+   * @param {Event} event - The event triggering the function.
+   */
+  function addStock(event) {
+    event.preventDefault();
+    var productId=$("#productId").val();
+    var quantity=$("#quantity").val();
+    storeId = GestCookie.getItem("employeeStore");
+    console.log(storeId);
+
+    $.ajax({
+      url: "https://dev-brennet222.users.info.unicaen.fr/bikestores/api/Stock/e8f1997c763",
+      method: "POST",
+      data: {
+        store_id: storeId,
+        product_id: productId,
+        quantity: quantity,
+        //auth_key: "e8f1997c763",
+      },
+      success: function(response) {
+        alert("Request sent successfully: "+response);
+        window.location.href = "index.php?action=products";
+      },
+      error: function(xhr, status, error) {
+        alert("Error: "+error);
+        window.location.href = "index.php?action=addForm";
       }
-
-      function addCategory() {
-        event.preventDefault();
-
-        var categoryName=$("#categoryName").val();
-
-        $.ajax({
-          url: "https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Category/e8f1997c763",
-          method: "POST",
-          data: {
-            category_name: categoryName,
-            //auth_key: "e8f1997c763",
-          },
-          success: function(response) {
-            alert("Request send successfully: "+response);
-            window.location.href = "index.php?action=products";
-          },
-          error: function(xhr, status, error) {
-            alert("Error: "+error);
-            window.location.href = "index.php?action=addForm";
-          }
-        });
-      }
-
-      function addStore() {
-        event.preventDefault();
-
-        var storeName=$("#storeName").val();
-        var phone=$("#phone").val();
-        var email=$("#email").val();
-        var street=$("#street").val();
-        var city=$("#city").val();
-        var state=$("#state").val();
-        var zipCode=$("#zipCode").val();
-
-        $.ajax({
-          url: "https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Store/e8f1997c763",
-          method: "POST",
-          data: {
-            store_name: storeName,
-            phone: phone,
-            email: email,
-            street: street,
-            city: city,
-            state: state,
-            zip_code: zipCode,
-            //auth_key: "e8f1997c763",
-          },
-          success: function(response) {
-            alert("Request send successfully: "+response);
-            window.location.href = "index.php?action=products";
-          },
-          error: function(xhr, status, error) {
-            alert("Error: "+error);
-            window.location.href = "index.php?action=addForm";
-          }
-        });
-      }
-
-      function addStock() {
-        event.preventDefault();
-
-        var productId=$("#productId").val();
-        var quantity=$("#quantity").val();
-        console.log(storeId);
-
-        $.ajax({
-          url: "https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Stock/e8f1997c763",
-          method: "POST",
-          data: {
-            store_id: storeId,
-            product_id: productId,
-            quantity: quantity,
-            //auth_key: "e8f1997c763",
-          },
-          success: function(response) {
-            alert("Request send successfully: "+response);
-            window.location.href = "index.php?action=products";
-          },
-          error: function(xhr, status, error) {
-            alert("Error: "+error);
-            window.location.href = "index.php?action=addForm";
-          }
-        });
-      }
+    });
+  }
 	  </script>
 </head>
 <body onload="hideSections()">
@@ -431,7 +444,7 @@
                 <input id="zipCode" type="text" size="5"/>
                 <br>
             </div>
-            <button class="btn btn-primary" onclick="addStore()">Next</button>
+            <button class="btn btn-primary" onclick="addStore(event)">Next</button>
         </form>
     </div>
   </section>

@@ -28,54 +28,73 @@
       }
     </style>
     <script type="text/javascript">
-
-    let storeIdChief;
-
-    let GestCookie = {
-      hasItem: function(name) {
-        const verif = new RegExp('(?:^|;\\s*)' + name.replace(/[\-\.\+\*]/g, '\\$&') + '\\s*\\=').test(document.cookie);
-        if (verif == true) {
-          return true;
-        } else {
-          return false;
-        }
-      },
-      getItem: function(name) {
-        if (this.hasItem(name)) {
-          const decodedCookie = decodeURIComponent(document.cookie);
-          const cookies = decodedCookie.split(';');
-          for (let cookie of cookies) {
-            cookie = cookie.trim();
-            if (cookie.startsWith(name + '=')) {
-              const cookieValue = cookie.substring(name.length + 1);
-              return atob(cookieValue);
+      /**
+       * Object containing methods for handling cookies.
+       * @constant
+       */
+      let GestCookie = {
+        /**
+         * Checks if a cookie with the specified name exists.
+         * @param {string} name - The name of the cookie to check.
+         * @returns {boolean} - True if the cookie exists, otherwise false.
+         */
+        hasItem: function(name) {
+          const verif = new RegExp('(?:^|;\\s*)' + name.replace(/[\-\.\+\*]/g, '\\$&') + '\\s*\\=').test(document.cookie);
+          return verif;
+        },
+        /**
+         * Retrieves the value of the specified cookie.
+         * @param {string} name - The name of the cookie to retrieve.
+         * @returns {(string|boolean)} - The value of the cookie if found, otherwise false.
+         */
+        getItem: function(name) {
+          if (this.hasItem(name)) {
+            const decodedCookie = decodeURIComponent(document.cookie);
+            const cookies = decodedCookie.split(';');
+            for (let cookie of cookies) {
+              cookie = cookie.trim();
+              if (cookie.startsWith(name + '=')) {
+                const cookieValue = cookie.substring(name.length + 1);
+                return atob(cookieValue);
+              }
             }
           }
-        } else {
           return false;
-        }
-      },
-    }
+        },
+      }
 
-      $( document ).ready(function() {
-        if (GestCookie.hasItem("employeeRole") && GestCookie.getItem("employeeRole")=="it") {
-          document.getElementById("addEmployeeItSection").style.display = "block";
-        } else if (GestCookie.hasItem("employeeRole") && GestCookie.getItem("employeeRole")=="chief") {
-          document.getElementById("addEmployeeChiefSection").style.display = "block";
-          storeIdChief = GestCookie.getItem("employeeStore");
+      /**
+       * Function executed when the document is fully loaded.
+       */
+      $(document).ready(function() {
+        if (GestCookie.hasItem("employeeRole")) {
+          const role = GestCookie.getItem("employeeRole");
+          if (role === "it") {
+            document.getElementById("addEmployeeItSection").style.display = "block";
+          } else if (role === "chief") {
+            document.getElementById("addEmployeeChiefSection").style.display = "block";
+            storeIdChief = GestCookie.getItem("employeeStore");
+          } else {
+            alert("You don't have access to this page.");
+            window.location.href = "index.php?action=products";
+          }
         } else {
-          alert("You don't have access to this page.")
+          alert("You don't have access to this page.");
           window.location.href = "index.php?action=products";
         }
       });
 
+      /**
+       * Function to hide employee sections.
+       */
       function hideSections() {
         document.getElementById("addEmployeeItSection").style.display = "none";
         document.getElementById("addEmployeeChiefSection").style.display = "none";
       }
 
-      
-
+      /**
+       * Function to add an IT employee.
+       */
       function addEmployeeIt() {
         event.preventDefault();
 
@@ -86,7 +105,7 @@
         var storeIdIt = $("#storeIdIt").val();
 
         $.ajax({
-          url: "https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Employee/e8f1997c763",
+          url: "https://dev-brennet222.users.info.unicaen.fr/bikestores/api/Employee/e8f1997c763",
           method: "POST",
           data: {
             store_id: storeIdIt,
@@ -94,19 +113,21 @@
             employee_email: employeeEmailIt,
             employee_password: employeePwdIt,
             employee_role: employeeRoleIt,
-            //auth_key: "e8f1997c763",
           },
           success: function(response) {
-            alert("Request send successfully: "+response);
+            alert("Request sent successfully: " + response);
             window.location.href = "index.php?action=products";
           },
           error: function(xhr, status, error) {
-            alert("Error: "+error);
+            alert("Error: " + error);
             window.location.href = "index.php?action=storeAdd";
           }
         });
       }
 
+      /**
+       * Function to add a chief employee.
+       */
       function addEmployeeChief() {
         event.preventDefault();
 
@@ -116,7 +137,7 @@
         var employeeRoleChief=$("#employeeRoleChief").val();
 
         $.ajax({
-          url: "https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Employee/e8f1997c763",
+          url: "https://dev-brennet222.users.info.unicaen.fr/bikestores/api/Employee/e8f1997c763",
           method: "POST",
           data: {
             store_id: storeIdChief,
@@ -124,20 +145,17 @@
             employee_email: employeeEmailChief,
             employee_password: employeePwdChief,
             employee_role: employeeRoleChief,
-            //auth_key: "e8f1997c763",
           },
           success: function(response) {
-            alert("Request send successfully: "+response);
+            alert("Request sent successfully: " + response);
             window.location.href = "index.php?action=products";
           },
           error: function(xhr, status, error) {
-            alert("Error: "+error);
+            alert("Error: " + error);
             window.location.href = "index.php?action=storeAdd";
           }
         });
       }
-
-      
 	  </script>
 </head>
 <body onload="hideSections()">

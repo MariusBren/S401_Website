@@ -20,20 +20,34 @@
     </style>
     <!--couleur naver dashboard-->
     <script type="text/javascript">
+      /**
+       * Function executed when the document is fully loaded.
+       */
       $(document).ready(function(){
+        // Reset filter values
         $('#yearFilter').val('');
         $('#minPriceFilter').val('');
         $('#maxPriceFilter').val('');
 
+        /**
+         * Object containing methods for handling cookies.
+         * @constant
+         */
         let GestCookie = {
+          /**
+           * Checks if a cookie with the specified name exists.
+           * @param {string} name - The name of the cookie to check.
+           * @returns {boolean} - True if the cookie exists, otherwise false.
+           */
           hasItem: function(name) {
             const verif = new RegExp('(?:^|;\\s*)' + name.replace(/[\-\.\+\*]/g, '\\$&') + '\\s*\\=').test(document.cookie);
-            if (verif == true) {
-              return true;
-            } else {
-              return false;
-            }
+            return verif;
           },
+          /**
+           * Retrieves the value of the specified cookie.
+           * @param {string} name - The name of the cookie to retrieve.
+           * @returns {(string|boolean)} - The value of the cookie if found, otherwise false.
+           */
           getItem: function(name) {
             if (this.hasItem(name)) {
               const decodedCookie = decodeURIComponent(document.cookie);
@@ -45,21 +59,26 @@
                   return atob(cookieValue);
                 }
               }
-            } else {
-              return false;
             }
+            return false;
           },
         }
 
-        if (GestCookie.hasItem("employeeRole") && GestCookie.getItem("employeeRole")=="chief") {
+        if (GestCookie.hasItem("employeeRole") && GestCookie.getItem("employeeRole") == "chief") {
           let storeId = GestCookie.getItem("employeeStore");
+          // Fetch employees from the chief's store via AJAX
           $.ajax({
-            url: 'https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Store/Employee/',
+            url: 'https://dev-brennet222.users.info.unicaen.fr/bikestores/api/Store/Employee/',
             type: 'GET',
             dataType: 'json',
             data: {
-                store_id: storeId
+              store_id: storeId
             },
+            /**
+             * Success callback function for AJAX request.
+             * Populates employee list with data from the chief's store.
+             * @param {Object[]} data - Array of employee objects
+             */
             success: function(data) {
               var table = $('#employeeList');
               $.each(data, function(index) {
@@ -67,16 +86,27 @@
                 +data[index].employee_role+'</td><td>'+data[index].employee_store+'</td></tr>');
               });
             },
+            /**
+             * Error callback function for AJAX request.
+             * Logs the error to the console.
+             * @param {Object} error - Error object
+             */
             error: function(error) {
-              console.error('Error during the recuperation of all employees from your store : ', error);
+              console.error('Error during the retrieval of all employees from your store: ', error);
             }
           })
 
-        } else if(GestCookie.hasItem("employeeRole") && GestCookie.getItem("employeeRole")=="it") {
+        } else if(GestCookie.hasItem("employeeRole") && GestCookie.getItem("employeeRole") == "it") {
+          // Fetch all employees via AJAX for IT department
           $.ajax({
-            url: 'https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Employee',
+            url: 'https://dev-brennet222.users.info.unicaen.fr/bikestores/api/Employee',
             type: 'GET',
             dataType: 'json',
+            /**
+             * Success callback function for AJAX request.
+             * Populates employee list with all employees.
+             * @param {Object[]} data - Array of employee objects
+             */
             success: function(data) {
               var table = $('#employeeList');
               $.each(data, function(index) {
@@ -84,13 +114,18 @@
                 +data[index].employee_role+'</td><td>'+data[index].employee_store+'</td></tr>');
               });
             },
+            /**
+             * Error callback function for AJAX request.
+             * Logs the error to the console.
+             * @param {Object} error - Error object
+             */
             error: function(error) {
-              console.error('Error during the recuperation of all employees : ', error);
+              console.error('Error during the retrieval of all employees: ', error);
             }
           })
           
         } else {
-          alert("You don't have access to this page.")
+          alert("You don't have access to this page.");
           window.location.href = "index.php?action=addForm";
         }
       });

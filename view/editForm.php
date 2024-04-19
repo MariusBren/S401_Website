@@ -14,7 +14,7 @@
     <!--<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>-->
     <style>
       h2 {
-        margin-top: 50px;
+        margin-top: 100px;
         margin-bottom: 50px;
       }
       form {
@@ -28,34 +28,45 @@
       }
     </style>
     <script type="text/javascript">
-
-let GestCookie = {
-      hasItem: function(name) {
-        const verif = new RegExp('(?:^|;\\s*)' + name.replace(/[\-\.\+\*]/g, '\\$&') + '\\s*\\=').test(document.cookie);
-        if (verif == true) {
-          return true;
-        } else {
-          return false;
-        }
-      },
-      getItem: function(name) {
-        if (this.hasItem(name)) {
-          const decodedCookie = decodeURIComponent(document.cookie);
-          const cookies = decodedCookie.split(';');
-          for (let cookie of cookies) {
-            cookie = cookie.trim();
-            if (cookie.startsWith(name + '=')) {
-              const cookieValue = cookie.substring(name.length + 1);
-              return atob(cookieValue);
+      /**
+       * Object for managing cookies.
+       * @type {Object}
+       */
+      let GestCookie = {
+        /**
+         * Checks if a cookie with a specified name exists.
+         * @param {string} name - The name of the cookie to check.
+         * @returns {boolean} - True if the cookie exists, otherwise false.
+         */
+        hasItem: function(name) {
+          const verif = new RegExp('(?:^|;\\s*)' + name.replace(/[\-\.\+\*]/g, '\\$&') + '\\s*\\=').test(document.cookie);
+          return verif;
+        },
+        /**
+         * Gets the value of a cookie with a specified name.
+         * @param {string} name - The name of the cookie to retrieve.
+         * @returns {string|boolean} - The value of the cookie if it exists, otherwise false.
+         */
+        getItem: function(name) {
+          if (this.hasItem(name)) {
+            const decodedCookie = decodeURIComponent(document.cookie);
+            const cookies = decodedCookie.split(';');
+            for (let cookie of cookies) {
+              cookie = cookie.trim();
+              if (cookie.startsWith(name + '=')) {
+                const cookieValue = cookie.substring(name.length + 1);
+                return atob(cookieValue);
+              }
             }
           }
-        } else {
           return false;
-        }
-      },
-    }
+        },
+      };
 
-      $( document ).ready(function() {
+      /**
+       * Executes actions after the document has loaded.
+       */
+      $(document).ready(function() {
         if (GestCookie.hasItem("employeeId")) {
           storeId = GestCookie.getItem("employeeStore");
           console.log(storeId);
@@ -66,6 +77,9 @@ let GestCookie = {
         }
       });
 
+      /**
+       * Hides sections of the page.
+       */
       function hideSections() {
         document.getElementById("editProductSection").style.display = "none";
         document.getElementById("editBrandSection").style.display = "none";
@@ -74,11 +88,14 @@ let GestCookie = {
         document.getElementById("editStoreSection").style.display = "none";
       }
 
+      /**
+       * Fills the stocks dropdown list via AJAX.
+       */
       function fillStocks() {
-        console.log("Fillstock lancée.");
+        console.log("Fillstock launched.");
         $(document).ready(function(){
           $.ajax({
-            url: 'https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Store/Stocks/',
+            url: 'https://dev-brennet222.users.info.unicaen.fr/bikestores/api/Store/Stocks/',
             type: 'GET',
             dataType: 'json',
             data: {
@@ -97,6 +114,10 @@ let GestCookie = {
         });
       }
 
+      /**
+       * Displays data based on the selected option.
+       * @param {Event} event - The event triggering the function.
+       */
       function displayData(event) {
         event.preventDefault();
 
@@ -104,24 +125,21 @@ let GestCookie = {
         var selectedData=$("#dataType").val();
 
         if (selectedData=="product") {
-          //afficher
           document.getElementById("editProductSection").style.display = "block";
         } else if (selectedData=="brand") {
-          //afficher
           document.getElementById("editBrandSection").style.display = "block";
         } else if (selectedData=="category") {
-          //afficher
           document.getElementById("editCategorySection").style.display = "block";
         } else if (selectedData=="stock") {
-          //afficher
           document.getElementById("editStockSection").style.display = "block";
         } else if (selectedData=="store") {
-          //afficher
           document.getElementById("editStoreSection").style.display = "block";
         }
-
       }
 
+      /**
+       * Edits a product via AJAX.
+       */
       function editProduct() {
         event.preventDefault();
 
@@ -140,7 +158,7 @@ let GestCookie = {
         console.log(listPrice);
 
         $.ajax({
-          url: "https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Product/edit/e8f1997c763",
+          url: "https://dev-brennet222.users.info.unicaen.fr/bikestores/api/Product/edit/e8f1997c763",
           method: "PUT",
           data: JSON.stringify({
             product_id: productId,
@@ -151,7 +169,7 @@ let GestCookie = {
             list_price: listPrice,
           }),
           success: function(response) {
-            alert("Request send successfully: "+response);
+            alert("Request sent successfully: "+response);
             window.location.href = "index.php?action=products";
           },
           error: function(xhr, status, error) {
@@ -161,6 +179,9 @@ let GestCookie = {
         });
       }
 
+      /**
+       * Edits a brand via AJAX.
+       */
       function editBrand() {
         event.preventDefault();
 
@@ -170,16 +191,15 @@ let GestCookie = {
         console.log(brandId);
         console.log(brandName);
 
-
         $.ajax({
-          url: "https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Brand/edit/e8f1997c763",
+          url: "https://dev-brennet222.users.info.unicaen.fr/bikestores/api/Brand/edit/e8f1997c763",
           method: "PUT",
           data: JSON.stringify({
             brand_id: brandId,
             brand_name: brandName,
           }),
           success: function(response) {
-            alert("Request send successfully: "+response);
+            alert("Request sent successfully: "+response);
             window.location.href = "index.php?action=products";
           },
           error: function(xhr, status, error) {
@@ -189,6 +209,9 @@ let GestCookie = {
         });
       }
 
+      /**
+       * Edits a category via AJAX.
+       */
       function editCategory() {
         event.preventDefault();
 
@@ -196,14 +219,14 @@ let GestCookie = {
         var categoryName=$("#categoryName").val();
 
         $.ajax({
-          url: "https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Category/edit/e8f1997c763",
+          url: "https://dev-brennet222.users.info.unicaen.fr/bikestores/api/Category/edit/e8f1997c763",
           method: "PUT",
           data: JSON.stringify({
             category_id: categoryId,
             category_name: categoryName,
           }),
           success: function(response) {
-            alert("Request send successfully: "+response);
+            alert("Request sent successfully: "+response);
             window.location.href = "index.php?action=products";
           },
           error: function(xhr, status, error) {
@@ -213,6 +236,9 @@ let GestCookie = {
         });
       }
 
+      /**
+       * Edits a store via AJAX.
+       */
       function editStore() {
         event.preventDefault();
 
@@ -226,7 +252,7 @@ let GestCookie = {
         var zipCode=$("#zipCode").val();
 
         $.ajax({
-          url: "https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Store/edit/e8f1997c763",
+          url: "https://dev-brennet222.users.info.unicaen.fr/bikestores/api/Store/edit/e8f1997c763",
           method: "PUT",
           data: JSON.stringify({
             store_id: storeId,
@@ -239,7 +265,7 @@ let GestCookie = {
             zip_code: zipCode,
           }),
           success: function(response) {
-            alert("Request send successfully: "+response);
+            alert("Request sent successfully: "+response);
             window.location.href = "index.php?action=products";
           },
           error: function(xhr, status, error) {
@@ -249,16 +275,18 @@ let GestCookie = {
         });
       }
 
+      /**
+       * Edits a stock via AJAX.
+       */
       function editStock() {
         event.preventDefault();
 
         var stockId=$("#stockId").val();
         var productId=$("#productId").val();
         var quantity=$("#quantity").val();
-        console.log(storeId);
 
         $.ajax({
-          url: "https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Stock/edit/e8f1997c763",
+          url: "https://dev-brennet222.users.info.unicaen.fr/bikestores/api/Stock/edit/e8f1997c763",
           method: "PUT",
           data: JSON.stringify({
             stock_id: stockId,
@@ -267,7 +295,7 @@ let GestCookie = {
             quantity: quantity,
           }),
           success: function(response) {
-            alert("Request send successfully: "+response);
+            alert("Request sent successfully: "+response);
             window.location.href = "index.php?action=products";
           },
           error: function(xhr, status, error) {

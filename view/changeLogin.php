@@ -28,34 +28,46 @@
       }
     </style>
     <script type="text/javascript">
-
-let GestCookie = {
-      hasItem: function(name) {
-        const verif = new RegExp('(?:^|;\\s*)' + name.replace(/[\-\.\+\*]/g, '\\$&') + '\\s*\\=').test(document.cookie);
-        if (verif == true) {
-          return true;
-        } else {
-          return false;
-        }
-      },
-      getItem: function(name) {
-        if (this.hasItem(name)) {
-          const decodedCookie = decodeURIComponent(document.cookie);
-          const cookies = decodedCookie.split(';');
-          for (let cookie of cookies) {
-            cookie = cookie.trim();
-            if (cookie.startsWith(name + '=')) {
-              const cookieValue = cookie.substring(name.length + 1);
-              return atob(cookieValue);
+      /**
+       * Object for managing cookies.
+       * @type {Object}
+       */
+      let GestCookie = {
+        /**
+         * Checks if a cookie with a specified name exists.
+         * @param {string} name - The name of the cookie to check.
+         * @returns {boolean} - True if the cookie exists, otherwise false.
+         */
+        hasItem: function(name) {
+          const verif = new RegExp('(?:^|;\\s*)' + name.replace(/[\-\.\+\*]/g, '\\$&') + '\\s*\\=').test(document.cookie);
+          return verif;
+        },
+        /**
+         * Gets the value of a cookie with a specified name.
+         * @param {string} name - The name of the cookie to retrieve.
+         * @returns {string|boolean} - The value of the cookie if it exists, otherwise false.
+         */
+        getItem: function(name) {
+          if (this.hasItem(name)) {
+            const decodedCookie = decodeURIComponent(document.cookie);
+            const cookies = decodedCookie.split(';');
+            for (let cookie of cookies) {
+              cookie = cookie.trim();
+              if (cookie.startsWith(name + '=')) {
+                const cookieValue = cookie.substring(name.length + 1);
+                return atob(cookieValue);
+              }
             }
           }
-        } else {
           return false;
-        }
-      },
-    }
+        },
+      };
 
-      function changeLoginSave() {
+      /**
+       * Changes the login details via AJAX.
+       * @param {Event} event - The event triggering the function.
+       */
+      function changeLoginSave(event) {
         event.preventDefault();
 
         var email=$("#email").val();
@@ -63,7 +75,7 @@ let GestCookie = {
         var id=GestCookie.getItem("employeeId");
 
         $.ajax({
-          url: "https://dev-brennet222.users.info.unicaen.fr/DEV_S4/SAE401/bikestores/Login/edit/e8f1997c763",
+          url: "https://dev-brennet222.users.info.unicaen.fr/bikestores/api/Login/edit/e8f1997c763",
           method: "PUT",
           data: JSON.stringify({
             id: id,
@@ -71,7 +83,7 @@ let GestCookie = {
             pwd: pwd,
           }),
           success: function(response) {
-            alert("Request send successfully: "+response);
+            alert("Request sent successfully: "+response);
             window.location.href = "index.php?action=products";
           },
           error: function(xhr, status, error) {
@@ -80,7 +92,6 @@ let GestCookie = {
           }
         });
       }
-      
 	  </script>
 </head>
 <body>
