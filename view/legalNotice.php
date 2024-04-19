@@ -200,7 +200,7 @@
         <p>Email: <a href="mailto:info@bikstore.com">info@bikstore.com</a></p>
         <p>Phone: +1 (555) 123-4567</p>
         
-        <p>Nous vous encourageons également à suivre notre page sur les réseaux sociaux pour les dernières mises à jour et offres spéciales :</p>
+        <p>You can also follow us on our social media:</p>
         <ul>
             <li>Facebook: <a href="https://www.facebook.com/bikstore" target="_blank">@bikstore</a></li>
             <li>LinkedIn: <a href="https://linkedin.com/bikstore_usa" target="_blank">@bikstore_usa</a></li>
